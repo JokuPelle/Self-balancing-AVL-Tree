@@ -29,8 +29,8 @@ typedef struct Node {
 } nodestruct, *node;
 
 //----------Käytetyt aliohjelmat----------
-void addToTree(node *base, int key, int * unbalanced, node *tree);
-void printTree(node tree, int level);
+void addToTree(node *base, int key, int * unbalanced, node *tree, int printer);
+void printTree(node tree, int level, int side);
 void turnLeft(node *base, int * unbalanced);
 void turnRight(node *base, int * unbalanced);
 void searchKey(node tree, int key);
@@ -42,39 +42,44 @@ void searchKey(node tree, int key);
 // unbalanced-muuttuja kertoo onko puu tasapainotettu
 //----------------------------------------
 int main(void) {
-	int num, choice, key, unbalanced = 0;
+	int num, choice, key, printer, unbalanced = 0;
 	node tree = NULL;
 	//int original[] = {2,4,6,8,10,12,14,30,28};
 	//File reading and initial tree building
+	printf("Print all stages? Yes=1 No=0: ");
+	scanf("%d", &printer);
 	FILE* fs;
-	fs = fopen("input.txt", "r");
+	fs = fopen("input2.txt", "r");
 	if (fs == NULL) {
 		printf("Failed to open file");
 		return -1;
 	}
 	while (1) {
-		fscanf(fs, "%d,", &num);
-		if (feof(fs)) break;
-		addToTree(&tree, num, &unbalanced, &tree);
-		printTree(tree, 0);
+		fscanf(fs, "%d ", &num);
+		addToTree(&tree, num, &unbalanced, &tree, printer);
+		if (printer) printTree(tree, 0, 0);
 		printf("\n");
+		if (feof(fs)) break;
 	}
 	fclose(fs);
 	//Start loop
 	while (1) {
-		printf("1) Add a node\n2) Search for a node\n0) End program\n\nYour choice: ");
+		printf("1) Add a node\n2) Search for a node\n3) Print tree\n0) End program\n\nYour choice: ");
 		scanf("%d", &choice);
 		switch (choice) {
 			case 1:
 				printf("Enter key: ");
 				scanf("%d", &key);
-				addToTree(&tree, key, &unbalanced, &tree);
-				printTree(tree,0);
+				addToTree(&tree, key, &unbalanced, &tree, printer);
+				printTree(tree,0,0);
 				break;
 			case 2:
 				printf("Enter key: ");
 				scanf("%d", &key);
 				searchKey(tree, key);
+				break;
+			case 3:
+				printTree(tree,0,0);
 				break;
 			case 0:
 				return 0;
@@ -113,16 +118,19 @@ void searchKey(node base, int key){
 
 // ---printTree---
 // Tulostaa puun sivusuunnassa rekursiivisesti
+// Tulostaa myös lapsen suunnan vanhemmasta
 //----------------------------------------
-void printTree(node base, int level) {
+void printTree(node base, int level, int side) {
 	if (base == NULL) return;
 	level++;
-	printTree(base->right, level);
+	printTree(base->right, level, 1);
 	for (int i=0; i<level; i++) {
 		printf("      ");
 	}
+	if (side == 1) printf("/ ");
+	else if (side == -1) printf("\\ ");
 	printf("%d(%d)\n", base->val, base->bal);
-	printTree(base->left, level);
+	printTree(base->left, level, -1);
 }
 
 // ---addToTree---
@@ -133,7 +141,7 @@ void printTree(node base, int level) {
 // Jos huomataan, että puun vasemman ja oikean haaran
 // pituusero on enemmän kuin 1, suoritetaan käännös.
 //----------------------------------------
-void addToTree(node *base, int key, int *unbalanced, node *tree) {
+void addToTree(node *base, int key, int *unbalanced, node *tree, int printer) {
 	if (!(*base)){
 		//Create a node on the current base (empty child)
 		*unbalanced = 1;
@@ -148,7 +156,7 @@ void addToTree(node *base, int key, int *unbalanced, node *tree) {
 		printf("New node %d added.\n", key);
 	} else if (key < (*base)->val) {
 		//Add key to the left child
-		addToTree(&(*base)->left, key, unbalanced, &(*tree));
+		addToTree(&(*base)->left, key, unbalanced, &(*tree), printer);
 		if (*unbalanced != 0){
 			switch((*base)->bal){
 				case 0: //Base has no children
@@ -159,14 +167,14 @@ void addToTree(node *base, int key, int *unbalanced, node *tree) {
 					*unbalanced = 0;
 					break;
 				case -1: //Base already has a left child !!DANGER!!
-					printTree(*tree, 0);
+					if (printer) printTree(*tree, 0, 0);
 					printf("Left side is too large.\nTurn parent %d. ", (*base)->val);
 					turnRight(base, unbalanced);
 			}
 		}
 	} else if (key > (*base)->val) {
 		//Add key to the right child
-		addToTree(&(*base)->right, key, unbalanced, &(*tree));
+		addToTree(&(*base)->right, key, unbalanced, &(*tree), printer);
 		if (*unbalanced != 0){
 			switch((*base)->bal){
 				case 0: //Base has no children
@@ -177,7 +185,7 @@ void addToTree(node *base, int key, int *unbalanced, node *tree) {
 					*unbalanced = 0;
 					break;
 				case 1: //Base already has a right child !!DANGER!!
-					printTree(*tree, 0);
+					if (printer) printTree(*tree, 0, 0);
 					printf("Right side is too large.\nTurn parent %d. ", (*base)->val);
 					turnLeft(base, unbalanced);
 			}

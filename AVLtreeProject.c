@@ -14,6 +14,18 @@
 //     oikean alipuun vasemman puolen ylipituus
 // RR: Puuta käännetään oikealle
 // LR: Alipuuta käännetään vasemmalle ja puuta oikealle
+//
+// Puun haun kompleksisuus on puun korkeus, eli O(logn)
+// Solmun poistaminen puusta voisi toteutua näin:
+// - Jos poistettavalla ei lapsia, poista solmu
+// - Jos yksi lapsi, se korvaa poistettavan (tällä lapsella ei voi olla omaa lasta tasapainon vuoksi)
+// - Jos kaksi lasta, korvataan se pidemmän puolen lapsella ja mahdollisesti tasataan puu
+//
+// Käytetyt lähteet:
+// - TutorialsPoint: https://www.tutorialspoint.com/data_structures_algorithms/avl_tree_algorithm.htm
+// - Martti Penttonen Johdatus algoritmien suunnitteluun ja analysointiin: http://www2.it.lut.fi/kurssit/00-01/010534000/luennot/penttonen/otsikot.html
+// - w3schools AVL-Trees: https://www.w3schools.in/data-structures-tutorial/avl-trees/
+//
 //----------------------------------------------------
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,7 +51,9 @@ void searchKey(node tree, int key);
 //---------------Pääohjelma---------------
 // Rakentaa alkuperäisen puun "input.txt"-tiedostosta
 // Käynnistää valikon
-// unbalanced-muuttuja kertoo onko puu tasapainotettu
+// unbalanced-muuttuja määrää tarvitseeko tarkastusta
+// tehdä solmulle. Tämä tärkeä mm käännösten jälkeen,
+// joka estää käännöksen teon usealle solmulle alhaalta ylös
 //----------------------------------------
 int main(void) {
 	int num, choice, key, printer, unbalanced = 0;
@@ -49,7 +63,7 @@ int main(void) {
 	printf("Print all stages? Yes=1 No=0: ");
 	scanf("%d", &printer);
 	FILE* fs;
-	fs = fopen("input2.txt", "r");
+	fs = fopen("input.txt", "r");
 	if (fs == NULL) {
 		printf("Failed to open file");
 		return -1;
@@ -140,8 +154,10 @@ void printTree(node base, int level, int side) {
 // arvojen erosta.
 // Jos huomataan, että puun vasemman ja oikean haaran
 // pituusero on enemmän kuin 1, suoritetaan käännös.
+// 
 //----------------------------------------
 void addToTree(node *base, int key, int *unbalanced, node *tree, int printer) {
+	
 	if (!(*base)){
 		//Create a node on the current base (empty child)
 		*unbalanced = 1;
@@ -168,7 +184,7 @@ void addToTree(node *base, int key, int *unbalanced, node *tree, int printer) {
 					break;
 				case -1: //Base already has a left child !!DANGER!!
 					if (printer) printTree(*tree, 0, 0);
-					printf("Left side is too large.\nTurn parent %d. ", (*base)->val);
+					printf("-Left side is too large.\n-Turn parent %d. ", (*base)->val);
 					turnRight(base, unbalanced);
 			}
 		}
@@ -186,15 +202,16 @@ void addToTree(node *base, int key, int *unbalanced, node *tree, int printer) {
 					break;
 				case 1: //Base already has a right child !!DANGER!!
 					if (printer) printTree(*tree, 0, 0);
-					printf("Right side is too large.\nTurn parent %d. ", (*base)->val);
+					printf("-Right side is too large.\n-Turn parent %d. ", (*base)->val);
 					turnLeft(base, unbalanced);
 			}
 		}
 	} else {
 		//Key already in tree
-		printf("Key already exists in tree.\n");
+		printf("-Key already exists in tree.\n");
 		*unbalanced = 0;
 	}
+	//printf("Unbalanced is %d.\n", *unbalanced);
 }
 
 // ---turnRight---
@@ -223,7 +240,7 @@ void turnRight(node *base, int *unbalanced) {
 				(*base)->bal = 1;
 				child->bal = 0;
 				break;
-			case 0: //Left and tight child
+			case 0: //Left and right child
 				(*base)->bal = 0;
 				child->bal = 0;
 				break;
@@ -259,15 +276,15 @@ void turnLeft(node *base, int *unbalanced) {
 		(*base)->right = grandchild->left;
 		grandchild->left = *base;
 	switch(grandchild->bal) {
-		case 1: //Grandchild had left child
+		case 1: //Grandchild had right child
 			(*base)->bal = -1;
 			child->bal = 0;
 			break;
-		case 0: //Left and tight child
+		case 0: //Left and right child
 			(*base)->bal = 0;
 			child->bal = 0;
 			break;
-		case -1: //Right child
+		case -1: //left child
 			(*base)->bal = 0;
 			child->bal = 1;
 		}

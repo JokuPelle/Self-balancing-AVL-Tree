@@ -1,4 +1,4 @@
-# Balanced Binary Tree
+# Self-balancing Binary Tree
 This course project contains a program that builds a balanced AVL-tree from a file.
 You can add nodes to this tree and search for keys inside the tree.
 You can choose not to print the tree in every step to produce larger trees much faster.

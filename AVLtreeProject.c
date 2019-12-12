@@ -49,7 +49,7 @@ void searchKey(node tree, int key);
 
 //----------------------------------------
 //---------------Pääohjelma---------------
-// Rakentaa alkuperäisen puun "input.txt"-tiedostosta
+// Rakentaa alkuperäisen puun input-tiedostosta
 // Käynnistää valikon
 // unbalanced-muuttuja määrää tarvitseeko tarkastusta
 // tehdä solmulle. Tämä tärkeä mm käännösten jälkeen,

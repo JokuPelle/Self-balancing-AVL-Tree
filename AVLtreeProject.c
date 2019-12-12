@@ -57,15 +57,18 @@ void searchKey(node tree, int key);
 //----------------------------------------
 int main(void) {
 	int num, choice, key, printer, unbalanced = 0;
+	char filename[20];
 	node tree = NULL;
-	//int original[] = {2,4,6,8,10,12,14,30,28};
 	//File reading and initial tree building
+	printf("Enter file name: ");
+	scanf("%s", filename);
+	//printf("Filename is %s.\n", filename);
 	printf("Print all stages? Yes=1 No=0: ");
 	scanf("%d", &printer);
 	FILE* fs;
-	fs = fopen("input.txt", "r");
+	fs = fopen(filename, "r");
 	if (fs == NULL) {
-		printf("Failed to open file");
+		printf("Error: Failed to open file.\n");
 		return -1;
 	}
 	while (1) {

@@ -1,7 +1,5 @@
 //----------------------------------------------------
-// BM40A0301 Tietorakenteet ja algoritmit
-// Harjoitustyö
-// Juuso Ylikoski 0526228
+// JokuPelle
 // 20.11.2019
 //----------------------------------------------------
 // Tämän harjoitustyön tarkoituksena on luoda AVL-binääripuu,
